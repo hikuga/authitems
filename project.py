@@ -263,12 +263,12 @@ def newItem(skishop_id):
 # Edit a menu item
 
 
-@app.route('/restaurant/<int:restaurant_id>/menu/<int:menu_id>/edit', methods=['GET', 'POST'])
-def editMenuItem(restaurant_id, menu_id):
+@app.route('/skishop/<int:skishop_id>/items/<int:item_id>/edit', methods=['GET', 'POST'])
+def editItem(skishop_id, item_id):
     if 'username' not in login_session:
         return redirect('/login')
-    editedItem = session.query(MenuItem).filter_by(id=menu_id).one()
-    restaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
+    editedItem = session.query(Child).filter_by(id=item_id).one()
+    skishop = session.query(Parent).filter_by(id=skishop_id).one()
     if request.method == 'POST':
         if request.form['name']:
             editedItem.name = request.form['name']
@@ -276,30 +276,30 @@ def editMenuItem(restaurant_id, menu_id):
             editedItem.description = request.form['description']
         if request.form['price']:
             editedItem.price = request.form['price']
-        if request.form['course']:
-            editedItem.course = request.form['course']
+        if request.form['attribute']:
+            editedItem.attribute = request.form['attribute']
         session.add(editedItem)
         session.commit()
-        flash('Menu Item Successfully Edited')
-        return redirect(url_for('showMenu', restaurant_id=restaurant_id))
+        flash('Skishop Item Successfully Edited')
+        return redirect(url_for('showItems', skishop_id=skihsop_id))
     else:
-        return render_template('editmenuitem.html', restaurant_id=restaurant_id, menu_id=menu_id, item=editedItem)
+        return render_template('editItem.html', skishop_id=skishop_id, item_id=item_id, item=editedItem)
 
 
 # Delete a menu item
-@app.route('/restaurant/<int:restaurant_id>/menu/<int:menu_id>/delete', methods=['GET', 'POST'])
-def deleteMenuItem(restaurant_id, menu_id):
+@app.route('/skishop/<int:skishop_id>/items/<int:item_id>/delete', methods=['GET', 'POST'])
+def deleteItem(skishop_id, item_id):
     if 'username' not in login_session:
         return redirect('/login')
-    restaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
-    itemToDelete = session.query(MenuItem).filter_by(id=menu_id).one()
+    skishop = session.query(Parent).filter_by(id=skishop_id).one()
+    itemToDelete = session.query(Child).filter_by(id=item_id).one()
     if request.method == 'POST':
         session.delete(itemToDelete)
         session.commit()
-        flash('Menu Item Successfully Deleted')
-        return redirect(url_for('showMenu', restaurant_id=restaurant_id))
+        flash('Skishop Item Successfully Deleted')
+        return redirect(url_for('showItems', skishop_id=skishop_id))
     else:
-        return render_template('deleteMenuItem.html', item=itemToDelete)
+        return render_template('deleteItem.html', item=itemToDelete)
 
 
 if __name__ == '__main__':
