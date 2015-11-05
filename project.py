@@ -280,8 +280,9 @@ def editItem(skishop_id, item_id):
             editedItem.attribute = request.form['attribute']
         session.add(editedItem)
         session.commit()
+        print 'done editing'
         flash('Skishop Item Successfully Edited')
-        return redirect(url_for('showItems', skishop_id=skihsop_id))
+        return redirect(url_for('showItems', skishop_id=skishop_id))
     else:
         return render_template('editItem.html', skishop_id=skishop_id, item_id=item_id, item=editedItem)
 
