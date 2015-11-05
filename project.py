@@ -166,7 +166,7 @@ def dict_xml(tag,d):
         elem.append(child)
     return elem
     
-def xmlfy(data):
+def xmlfy(data, tag='skidata'):
     if isinstance(data, dict):
         return unescape(tostring(dict_xml('skishop', data)))
     if isinstance(data, list):
@@ -178,7 +178,14 @@ def xmlfy(data):
                 elem.append(elemsub)
         return unescape(tostring(elem))
 
-# JSON APIs to view Restaurant Information
+@app.route('/skishop/<int:skishop_id>/items/XML')
+def skishopItemsXML(skishop_id):
+    restaurant = session.query(Parent).filter_by(id=skishop_id).one()
+    items = session.query(Child).filter_by(
+        parent_id=skishop_id).all()
+    return xmlfy([i.serialize for i in items])
+    
+    # JSON APIs to view Restaurant Information
 @app.route('/skishop/<int:skishop_id>/items/JSON')
 def skishopItemsJSON(skishop_id):
     restaurant = session.query(Parent).filter_by(id=skishop_id).one()
@@ -191,6 +198,11 @@ def skishopItemsJSON(skishop_id):
 def skishopItemJSON(skishop_id, item_id):
     Skishop_Item = session.query(Child).filter_by(id=item_id).one()
     return jsonify(SkishopItem=Skishop_Item.serialize)
+
+@app.route('/skishop/<int:skishop_id>/items/<int:item_id>/XML')
+def skishopItemXML(skishop_id, item_id):
+    Skishop_Item = session.query(Child).filter_by(id=item_id).one()
+    return xmlfy(Skishop_Item.serialize)
 
 
 @app.route('/skishop/JSON')
