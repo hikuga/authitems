@@ -155,6 +155,28 @@ def gdisconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
 
+def dict_xml(tag,d):
+    elem = Element(tag)
+    for k,v in d.items():
+        child=Element(k)
+        if isinstance(v, dict):
+            child.text = tostring( dict_to_xml(tag, v))
+        else:
+            child.text = str(v)
+        elem.append(child)
+    return elem
+    
+def xmlfy(data):
+    if isinstance(data, dict):
+        return unescape(tostring(dict_xml('skishop', data)))
+    if isinstance(data, list):
+        elem=Element(tag)
+        for subdata in data:
+            elemsub=Element(tag)
+            if isinstance(subdata, dict):
+                elemsub=dict_xml(tag, subdata)
+                elem.append(elemsub)
+        return unescape(tostring(elem))
 
 # JSON APIs to view Restaurant Information
 @app.route('/skishop/<int:skishop_id>/items/JSON')
