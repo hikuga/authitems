@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, jsonify, url_for, flash
+from flask import Flask, render_template, request, redirect, jsonify, url_for, flash, Response
 from sqlalchemy import create_engine, asc
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Parent, Child
@@ -10,6 +10,9 @@ import httplib2
 import json
 from flask import make_response
 import requests
+from xml.etree.ElementTree import Element
+from xml.etree.ElementTree import tostring
+from xml.sax.saxutils import escape, unescape
 
 import string
 
@@ -176,19 +179,22 @@ def xmlfy(data, tag='skidata'):
             if isinstance(subdata, dict):
                 elemsub=dict_xml(tag, subdata)
                 elem.append(elemsub)
-        return unescape(tostring(elem))
+        print 'xmlfy->'+unescape(tostring(elem))
+        return tostring(elem)
 
 @app.route('/skishop/<int:skishop_id>/items/XML')
 def skishopItemsXML(skishop_id):
-    restaurant = session.query(Parent).filter_by(id=skishop_id).one()
+    #restaurant = session.query(Parent).filter_by(id=skishop_id).one()
     items = session.query(Child).filter_by(
         parent_id=skishop_id).all()
-    return xmlfy([i.serialize for i in items])
+    xmlf=xmlfy([i.serialize for i in items])
+    response=Response(xmlf, mimetype='xml/text')
+    return response
     
-    # JSON APIs to view Restaurant Information
+    # JSON APIs to view store Information
 @app.route('/skishop/<int:skishop_id>/items/JSON')
 def skishopItemsJSON(skishop_id):
-    restaurant = session.query(Parent).filter_by(id=skishop_id).one()
+    #restaurant = session.query(Parent).filter_by(id=skishop_id).one()
     items = session.query(Child).filter_by(
         parent_id=skishop_id).all()
     return jsonify(SkiItems=[i.serialize for i in items])
@@ -202,7 +208,9 @@ def skishopItemJSON(skishop_id, item_id):
 @app.route('/skishop/<int:skishop_id>/items/<int:item_id>/XML')
 def skishopItemXML(skishop_id, item_id):
     Skishop_Item = session.query(Child).filter_by(id=item_id).one()
-    return xmlfy(Skishop_Item.serialize)
+    xmlf=xmlfy(Skishop_Item.serialize)
+    response=Response(xmlf, mimetype='xml/text')
+    return response
 
 
 @app.route('/skishop/JSON')
@@ -210,6 +218,12 @@ def skishopsJSON():
     skishops = session.query(Parent).all()
     return jsonify(skishops=[r.serialize for r in skishops])
 
+@app.route('/skishop/XML')
+def skishopsXML():
+    skishops = session.query(Parent).all()
+    xmlf = xmlfy([r.serialize for r in skishops])
+    response=Response(xmlf, mimetype='xml/text')
+    return response
 
 # Show all skishops
 @app.route('/')

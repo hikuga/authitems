@@ -7,11 +7,13 @@
 	<div class="row banner menu">
 		<div class="col-md-11 col-md-offset-1 padding-none">
 			<h1>{{ skishop.name }}
-			<figure class="creator">
-				<img src="{{ url_for('static', filename='blank_user.gif') }}">
-				<figcaption>Menu creator's name goes here</figcaption>
-			</figure>
+			
 			</h1>
+		<a href="{{url_for('newItem', skishop_id=skishop.id)}}">
+				<button class="btn btn-default" id="new-restaurant">
+					<span aria-hidden="true"></span>Add item
+				</button>
+			</a>	
 
 		</div>
 	</div>
@@ -34,14 +36,15 @@
 		<div class="row">
 			<div class="col-md-1"></div>
 			<div class="col-md-3">
-				<h2>skishop.name</h2>
 					{% for i in items %}
 						
 							<div class="menu-item">
+								<a href="{{url_for('editItem', skishop_id=skishop.id, item_id=i.id)}}">
 								<h3>{{i.name}}</h3>
+								</a>
 								<p>{{i.description}}</p>
 								<p class="menu-price">{{i.price}}</p>
-								<p>{{i.attribute}}</p>
+								<p>{{i.attribute}}</p><br>
 							</div>
 						
 					{% endfor %}
